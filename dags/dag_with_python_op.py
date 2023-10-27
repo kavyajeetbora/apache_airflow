@@ -8,12 +8,16 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
-def greet(name,age):
+def greet(age, ti):
+    name = ti.xcom_pull(task_ids='get_name')
     print(f"Hello World!! My name is {name} and my age is {age}")
+
+def get_name():
+    return "Kavyajeet"
 
 with DAG(
     default_args= default_args,
-    dag_id = "python_operator_v2",
+    dag_id = "python_operator_v4",
     description= "First Dag with python operator",
     start_date=datetime(2023,10,27),
     schedule_interval='@daily'
@@ -21,7 +25,12 @@ with DAG(
     task1 = PythonOperator(
         task_id='greet',
         python_callable=greet,
-        op_kwargs={'name': 'Kavyajeet Bora', 'age': 31}
+        op_kwargs={'age': 31}
     )
 
-    task1
+    task2 = PythonOperator(
+        task_id = 'get_name',
+        python_callable=get_name
+    )
+
+    task2 >> task1
