@@ -9,7 +9,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id='first_dag_v2',
+    dag_id='first_dag_v3',
     default_args= default_args,
     description="This is my first DAG in airflow. DAG - Directed Acyclic Graph",
     start_date = datetime(2023,10,26, 17,0,0),
@@ -30,6 +30,15 @@ with DAG(
         bash_command="echo hello world, this task will run after task1 but at the same time as task2"
     )
 
-    task1.set_downstream(task2)
-    task1.set_downstream(task3)
+    
+    ## Method 1
+    # task1.set_downstream(task2)
+    # task1.set_downstream(task3)
+
+    ## Method 2
+    # task1 >> task2
+    # task1 >> task3
+
+    ## Method 3
+    task1 >> [task2, task3]
 
