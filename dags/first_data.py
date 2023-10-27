@@ -25,4 +25,11 @@ with DAG(
         bash_command="echo hello world, this is our second task and it will run after task1"
     )
 
+    task3 = BashOperator(
+        task_id='third_task',
+        bash_command="echo hello world, this task will run after task1 but at the same time as task2"
+    )
+
     task1.set_downstream(task2)
+    task1.set_downstream(task3)
+
