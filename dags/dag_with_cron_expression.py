@@ -9,11 +9,11 @@ default_args = {
 }
 
 with DAG(
-    dag_id='dag_with_cron_expression_v1',
+    dag_id='dag_with_cron_expression_v3',
     default_args= default_args,
     description="This is my first DAG in airflow. DAG - Directed Acyclic Graph",
-    start_date = datetime(2023,10,27),
-    schedule_interval="@daily"
+    start_date = datetime(2023,10,20),
+    schedule_interval="0 3 * * Tue,Fri"
 ) as dag:
     task1 = BashOperator(
         task_id='first_task',
