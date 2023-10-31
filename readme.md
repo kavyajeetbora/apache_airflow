@@ -65,6 +65,29 @@ run_this = PythonOperator(
 
 Xcoms are used for sharing data between task. But the downside is that the maximum limit is 48KB only
 
+- Pushing one return value from a task:
+
+```python
+def get_pincode():
+    return 122011
+```
+
+- Pushing multiple values to xcoms from a task:
+
+```python
+def get_name(ti):
+    ti.xcom_push(key="first_name", value="Kavyajeet")
+    ti.xcom_push(key='last_name', value="Bora")
+```
+
+- To retrieve the values:
+
+```python
+first_name = ti.xcom_pull(task_ids = "return_to_xcoms", key="first_name")
+last_name = ti.xcom_pull(task_ids = "return_to_xcoms", key="last_name")
+pincode = ti.xcom_pull(task_ids='get_pincode')
+```
+
 ## Airflow Taskflow API
 
 The TaskFlow API was introduced in Airflow 2.0 and is a wonderful alternative to PythonOperator.
