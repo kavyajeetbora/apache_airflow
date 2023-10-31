@@ -92,7 +92,7 @@ If you are using Python to perform tasks in your workflows, TaskFlow methods mak
 
 By default, Airflow will run any past scheduled intervals that have not been run.
 
-![](https://miro.medium.com/v2/resize:fit:786/format:webp/1*8foi9cV4CLUixQO7M7hrrw.png)
+<img src="https://miro.medium.com/v2/resize:fit:786/format:webp/1*8foi9cV4CLUixQO7M7hrrw.png" height=400/>
 
 ## Airflow Scheduler with Cron Expression
 
@@ -104,6 +104,83 @@ While datetime and timedelta can be used for scheduling tasks in Airflow, they a
 
 You can create cron expression using this web tool: [Cronitor](https://crontab.guru/)
 
-![](https://miro.medium.com/v2/resize:fit:1358/1*3KXqWXyDBN7QUwURIBbfYg.gif)
+<img src="https://miro.medium.com/v2/resize:fit:1358/1*3KXqWXyDBN7QUwURIBbfYg.gif" height=400/>
 
 ## Airflow connection to Postgres
+
+The purpose of PostgresOperator is to define tasks involving interactions with a PostgreSQL database.
+
+- First setup the postgres connection on airflow UI:
+
+<img src="https://i.stack.imgur.com/VbRsL.png" height=400/>
+
+- Use the connection id to pass it as an argument in the postgresoperator:
+
+```python
+from airflow.providers.postgres.operators.postgres import PostgresOperator
+
+with DAG(
+    dag_id = 'dag_with_postgres_operator_v3',
+    default_args=default_args,
+    start_date = datetime(2023,10,30),
+    schedule_interval="0 0 * * *"
+) as dag:
+    task1 = PostgresOperator(
+        task_id = 'create_postgres_table',
+        postgres_conn_id = "BH_training_db",  ## Enter the connection id from step 1
+        ## Type SQL command to be executed:
+        sql = '''
+            create table if not exists public.airflow_dag_runs (
+                dt date,
+                dag_id character varying,
+                primary key (dt, dag_id)
+            )
+        '''
+        =
+    )
+```
+
+[Here is a comprehensive guide on how to guide for PostgresOperator](https://airflow.apache.org/docs/apache-airflow-providers-postgres/stable/operators/postgres_operator_howto_guide.html)
+
+## Installing python packages in Airflow
+
+There are two ways of installing python packages:
+
+1. Docker Image Extending - This is the recommended way, it is fast and simple to execute
+
+Follow the steps to install the python packages to the airflow docker image:
+
+- first create a requirement.txt file in the parent directory where in all python external libraries are written with version as shown:
+  <img src="https://miro.medium.com/v2/resize:fit:1116/1*jqwf3sUzzfpdVpYv3DwOxw.png" height=400/>
+
+- Create a Docker file, extending the airflow docker image:
+
+```Dockerfile
+# Install python packages on top of airflow image
+FROM apache/airflow:2.7.2
+COPY requirements.txt /requirements.txt
+RUN pip install --user --upgrade pip
+RUN pip install --no-cache-dir --user -r /requirements.txt
+```
+
+To build this docker image in the Docker local hub, type the following in the terminal:
+
+```git
+docker build . --tag <<name of the docker image>>
+```
+
+This will build the docker image with the python packages installed in it
+
+- Now initiate the airflow image from the official docker compose file
+
+```
+docker-compose up airflow-init
+```
+
+- Now start the image:
+
+```
+docker-compose up
+```
+
+2. Image Customizing
